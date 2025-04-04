@@ -1,0 +1,211 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+/// ======================
+/// Các model cho NextAuth
+/// Nếu bạn sử dụng NextAuth, hãy thêm các model Account, Session, VerificationToken theo hướng dẫn của NextAuth.
+/// Tham khảo: https://next-auth.js.org/adapters/prisma
+/// ======================
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String       @unique
+  emailVerified DateTime?
+  password      String?
+  imageUrl      String?
+  remember      String?
+  role          Role         @default(USER)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  // Optionally store tokens or their expiry for password reset/email verification.
+  resetToken    String?
+  resetTokenExp DateTime?
+  provider      String? // For OAuth providers (e.g. "google")
+  providerId    String?
+  // Quan hệ
+  watchLater    WatchLater[]
+  favorites     String[]     @default([]) // Lưu danh sách anime yêu thích dưới dạng array of strings (anime IDs)
+  comments      Comment[] // User's comments
+  ratings       Rating[]
+  animeViews    AnimeView[]
+  // NextAuth
+  accounts      Account[] // Cho NextAuth OAuth
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+/// ======================
+/// Các model cho trang Anime Streaming
+/// ======================
+enum Status {
+  ONGOING
+  COMPLETED
+}
+
+model Anime {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  exTitle      String
+  slug         String       @unique
+  imageUrl     String?
+  description  String?
+  totalEpisode Int
+  releaseYear  Int
+  status       Status       @default(ONGOING)
+  views        Int          @default(0)
+  episodes     Episode[]
+  animeGenres  AnimeGenre[]
+  ratings      Rating[]
+  animeViews   AnimeView[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Rating {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  animeId   String   @db.ObjectId
+  score     Int // Điểm đánh giá (ví dụ: 1-10)
+  review    String? // Nhận xét (tùy chọn)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anime     Anime    @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, animeId]) // Mỗi user chỉ có thể đánh giá một anime một lần
+}
+
+model Genre {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String       @unique
+  animeGenres AnimeGenre[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Episode {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  animeId    String       @db.ObjectId
+  title      String
+  slug       String       @unique
+  number     Int
+  season     Int // Thêm trường này để biểu thị mùa (ví dụ: 1, 2, 3, ...)
+  videoUrl   String
+  duration   Int // duration in minutes
+  anime      Anime        @relation(fields: [animeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  comments   Comment[] // List of comments on the episode
+  watchLater WatchLater[] // List of users who watched this episode
+}
+
+model AnimeGenre {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  animeId   String   @db.ObjectId
+  genreId   String   @db.ObjectId
+  // Quan hệ
+  anime     Anime    @relation(fields: [animeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  genre     Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WatchLater {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  episodeId String   @db.ObjectId
+  watchedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  episodeId String   @db.ObjectId
+  content   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AnimeView {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  animeId   String   @db.ObjectId
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  anime Anime @relation(fields: [animeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  // Constraint duy nhất cho tổ hợp animeId và userId
+  @@unique([animeId, userId])
+}
+
+model DailyVisit {
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  date  DateTime // Lưu ngày (chỉ quan tâm đến phần ngày)
+  count Int      @default(0)
+
+  @@unique([date])
+}
