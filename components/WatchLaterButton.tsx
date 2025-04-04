@@ -43,6 +43,7 @@ const WatchLaterButton = ({ episodeId }: WatchLaterButtonProps) => {
         toast.error(data.error || 'Đã xảy ra lỗi khi thêm vào danh sách xem sau');
       }
     } catch (error) {
+      console.log(error);
       toast.error('Đã xảy ra lỗi khi thêm vào danh sách xem sau');
     } finally {
       setIsLoading(false);

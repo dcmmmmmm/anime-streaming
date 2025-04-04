@@ -86,6 +86,7 @@ export default function CommentSection({ episodeId }: CommentSectionProps) {
       setNewComment("");
       toast.success("Đã thêm bình luận!");
     } catch (error) {
+      console.log(error);
       toast.error("Không thể thêm bình luận!");
     } finally {
       setIsSubmitting(false);
