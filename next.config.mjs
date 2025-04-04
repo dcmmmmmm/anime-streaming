@@ -5,7 +5,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   eslint: {
-    // Bỏ qua lỗi ESLint khi build
     ignoreDuringBuilds: true,
   },
   images: {
