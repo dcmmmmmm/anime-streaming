@@ -247,30 +247,36 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
             </div>
 
             {/* Render danh sách season và tập */}
-            {seasonNumbers.map((season) => (
-              <div
-                key={season}
-                className="bg-[#29223a] p-4 rounded shadow-md mb-4"
-              >
-                <h3 className="font-semibold mb-2 text-lg">Season {season}</h3>
-                <div className="grid grid-cols-4 gap-2">
-                  {episodesBySeason[season].map((episode) => (
-                    <Link
-                      key={episode.id}
-                      href={`/stream/${episode.slug}`}
-                      className="p-2 text-sm rounded bg-[#303953] hover:bg-blue-500 transition text-center"
-                    >
-                      Tập {episode.number}
-                    </Link>
-                  ))}
+            {seasonNumbers.length > 0 ? (
+              seasonNumbers.map((season) => (
+                <div
+                  key={season}
+                  className="bg-[#29223a] p-4 rounded shadow-md mb-4"
+                >
+                  <h3 className="font-semibold mb-2 text-lg">Season {season}</h3>
+                  <div className="grid grid-cols-4 gap-2">
+                    {episodesBySeason[season].map((episode) => (
+                      <Link
+                        key={episode.id}
+                        href={`/stream/${episode.slug}`}
+                        className="p-2 text-sm rounded bg-[#303953] hover:bg-blue-500 transition text-center"
+                      >
+                        Tập {episode.number}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="bg-[#29223a] p-4 rounded shadow-md text-center text-gray-400">
+                Chưa có tập nào được đăng.
               </div>
-            ))}
+            )}
           </div>
         </div>
 
         {/* Related Anime Slider (nếu có) */}
-        {anime.relatedAnimes && anime.relatedAnimes.length > 0 && (
+        {Array.isArray(anime.relatedAnimes) && anime.relatedAnimes.length > 0 ? (
           <div className="mt-8">
             <h3 className="font-semibold text-lg mb-2">Anime Gợi ý</h3>
             <div className="bg-[#29223a] p-4 rounded shadow-md">
@@ -303,6 +309,8 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
               </Swiper>
             </div>
           </div>
+        ) : (
+          <div className="text-center text-gray-400 mt-4">Không có anime gợi ý.</div>
         )}
       </div>
 

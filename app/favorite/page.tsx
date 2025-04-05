@@ -9,6 +9,11 @@ import { toast } from "react-hot-toast";
 import Breadcrumb from "@/components/Breadcumb";
 import Link from "next/link";
 
+interface Episode {
+  id: string;
+  title: string;
+  // Thêm các thuộc tính khác nếu cần
+}
 interface Anime {
   id: string;
   title: string;
@@ -19,7 +24,7 @@ interface Anime {
   totalEpisode: number;
   releaseYear: number;
   status: "ONGOING" | "COMPLETED";
-  episodes: any[]; // Mảng các tập, có thể định nghĩa chi tiết hơn nếu cần
+  episodes: Episode[]; // Mảng các tập, có thể định nghĩa chi tiết hơn nếu cần
   genres?: string[];
   rating?: string;
   views?: string;
