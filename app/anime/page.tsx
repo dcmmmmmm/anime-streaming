@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,7 +35,17 @@ interface PaginationInfo {
   totalPages: number;
 }
 
+// 👉 Component chính export
 export default function AnimePage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <AnimePageContent />
+    </Suspense>
+  );
+}
+
+// 👉 Component con để dùng hook bất đồng bộ (useSearchParams)
+function AnimePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = parseInt(searchParams.get('page') || '1');
@@ -49,9 +59,7 @@ export default function AnimePage() {
       try {
         setLoading(true);
         const response = await fetch(`/api/animes/paginated?page=${currentPage}&limit=5`);
-        if (!response.ok) {
-          throw new Error('Không thể tải danh sách anime');
-        }
+        if (!response.ok) throw new Error('Không thể tải danh sách anime');
         const data = await response.json();
         setAnimes(data.animes);
         setPagination(data.pagination);
@@ -62,7 +70,6 @@ export default function AnimePage() {
         setLoading(false);
       }
     };
-
     fetchAnimes();
   }, [currentPage]);
 
@@ -70,22 +77,17 @@ export default function AnimePage() {
     router.push(`/anime?page=${page}`);
   };
 
-  if (loading) {
-    return <Loading />;
-  }
+  if (loading) return <Loading />;
 
   return (
     <div className="polka-dot text-white min-h-screen">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-center">Danh sách Anime</h1>
-        
-        {error && (
-          <div className="text-red-500 text-center mb-4">{error}</div>
-        )}
 
-        {/* Hiển thị thông tin phân trang */}
+        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+
         <div className="text-center mb-6 text-gray-400">
           Trang {currentPage} / {pagination?.totalPages || 1} 
           (Tổng số: {pagination?.total || 0} anime)
@@ -133,7 +135,6 @@ export default function AnimePage() {
           ))}
         </div>
 
-        {/* Phân trang */}
         {pagination && pagination.totalPages > 1 && (
           <div className="flex justify-center items-center space-x-2 mt-8">
             <button
@@ -143,7 +144,7 @@ export default function AnimePage() {
             >
               Trước
             </button>
-            
+
             {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
               .filter(page => {
                 const diff = Math.abs(page - currentPage);
@@ -152,9 +153,7 @@ export default function AnimePage() {
               .map((page, index, array) => {
                 if (index > 0 && array[index - 1] !== page - 1) {
                   return (
-                    <span key={`ellipsis-${page}`} className="px-4 py-2">
-                      ...
-                    </span>
+                    <span key={`ellipsis-${page}`} className="px-4 py-2">...</span>
                   );
                 }
                 return (
@@ -171,7 +170,7 @@ export default function AnimePage() {
                   </button>
                 );
               })}
-            
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === pagination.totalPages}

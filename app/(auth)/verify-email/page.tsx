@@ -1,10 +1,19 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import Link from 'next/link';
 
-export default function VerifyEmailPage() {
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="text-white text-center mt-20">Đang xác thực...</div>}>
+      <VerifyEmailPage />
+    </Suspense>
+  );
+}
+
+function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const [message, setMessage] = useState("Verifying your email...");

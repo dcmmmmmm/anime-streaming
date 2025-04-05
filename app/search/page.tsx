@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,15 +35,31 @@ interface PaginationInfo {
   totalPages: number;
 }
 
-export default function SearchPage() {
+export default function SearchWrapper() {
+  return (
+    <Suspense fallback={<div>Đang tải...</div>}>
+      <SearchPage />
+    </Suspense>
+  );
+}
+
+
+ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const query = searchParams.get('q');
-  const page = parseInt(searchParams.get('page') || '1');
+  const [query, setQuery] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+
+  useEffect(() => {
+    const q = searchParams.get('q');
+    const p = parseInt(searchParams.get('page') || '1');
+    setQuery(q);
+    setPage(p);
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -54,6 +70,7 @@ export default function SearchPage() {
       }
 
       try {
+        setLoading(true);
         const response = await fetch(`/api/animes/search?q=${encodeURIComponent(query)}&page=${page}`);
         if (!response.ok) {
           throw new Error('Không thể tìm kiếm anime');
@@ -61,6 +78,7 @@ export default function SearchPage() {
         const data = await response.json();
         setAnimes(data.animes);
         setPagination(data.pagination);
+        setError('');
       } catch (err) {
         console.error('Lỗi tìm kiếm:', err);
         setError('Đã xảy ra lỗi khi tìm kiếm');
@@ -69,29 +87,29 @@ export default function SearchPage() {
       }
     };
 
-    fetchSearchResults();
+    if (query !== null) {
+      fetchSearchResults();
+    }
   }, [query, page]);
 
   const handlePageChange = (newPage: number) => {
-    router.push(`/search?q=${encodeURIComponent(query || '')}&page=${newPage}`);
+    if (!query) return;
+    router.push(`/search?q=${encodeURIComponent(query)}&page=${newPage}`);
   };
 
-  if (loading) {
-    return <Loading />;
-  }
+  if (loading) return <Loading />;
 
   return (
     <div className="polka-dot text-white min-h-screen">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-center">
-          Kết quả tìm kiếm cho <span className="text-[#ff025b]">&ldquo;{query}&rdquo;</span>
+          Kết quả tìm kiếm cho{' '}
+          <span className="text-[#ff025b]">&ldquo;{query}&rdquo;</span>
         </h1>
 
-        {error && (
-          <div className="text-red-500 text-center mb-4">{error}</div>
-        )}
+        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
         {animes.length === 0 ? (
           <div className="text-center text-gray-300">
@@ -115,7 +133,9 @@ export default function SearchPage() {
                       <h2 className="font-semibold text-lg mb-2 text-white hover:text-[#ff025b] transition-colors">
                         {anime.title}
                       </h2>
-                      <p className="text-gray-400 text-sm mb-2">{anime.exTitle}</p>
+                      <p className="text-gray-400 text-sm mb-2">
+                        {anime.exTitle}
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {anime.genres.map((genre) => (
                           <Link
@@ -174,7 +194,6 @@ export default function SearchPage() {
 
       <Footer />
 
-      {/* CSS nền chấm bi (polka-dot) */}
       <style jsx>{`
         .polka-dot {
           background-color: #0e0011;
@@ -185,3 +204,4 @@ export default function SearchPage() {
     </div>
   );
 }
+

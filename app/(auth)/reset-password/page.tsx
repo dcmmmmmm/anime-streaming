@@ -1,10 +1,10 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react'; // Thêm Suspense
 import { useSearchParams, useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const email = searchParams.get('email');
@@ -43,7 +43,6 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-[#303953] via-[#29223a] to-[#0e0011] text-white">
       <Toaster />
-      {/* Web title */}
       <div>
         <div className="text-center text-3xl font-bold uppercase tracking-wider">
           <span className="text-[#ff025b]">Anime</span> Heaven
@@ -66,7 +65,6 @@ export default function ResetPasswordPage() {
               onChange={(e) => setNewPassword(e.target.value)}
               required
               className="w-full px-3 py-2 mt-1 border rounded-md bg-gray-700 text-white focus:outline-none focus:ring focus:ring-[#ff025b] placeholder-gray-400"
-              
             />
           </div>
           <div>
@@ -80,19 +78,26 @@ export default function ResetPasswordPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               className="w-full px-3 py-2 mt-1 border rounded-md bg-gray-700 text-white focus:outline-none focus:ring focus:ring-[#ff025b] placeholder-gray-400"
-              
             />
             {passwordError && <p className="text-red-900 text-sm mt-1">{passwordError}</p>}
           </div>
           <Button
             type="submit"
             className="w-full px-4 py-2 font-medium text-white bg-[#ff025b] rounded-md hover:bg-[#d8064b] focus:outline-none focus:ring focus:ring-[#ff025b]"
-            
           >
             Đặt lại mật khẩu
           </Button>
         </form>
       </div>
     </div>
+  );
+}
+
+// ✅ Bọc component chính trong Suspense
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="text-white">Đang tải...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

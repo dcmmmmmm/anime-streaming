@@ -1,9 +1,12 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+import { NextResponse, NextRequest } from 'next/server';
+import prisma from '@/lib/prisma';
+import { isDynamicServerError } from "next/dist/client/components/hooks-server-context";
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
   try {
-    const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '5');
     const skip = (page - 1) * limit;
@@ -81,6 +84,9 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
+    if (isDynamicServerError(error)) {
+      throw error;
+    }
     console.error("Lỗi khi lấy danh sách anime:", error);
     return NextResponse.json(
       { message: "Đã xảy ra lỗi khi lấy danh sách anime" },

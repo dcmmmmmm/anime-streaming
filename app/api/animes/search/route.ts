@@ -1,5 +1,8 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { isDynamicServerError } from "next/dist/client/components/hooks-server-context";
 
 export async function GET(request: Request) {
   try {
@@ -101,6 +104,9 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
+    if (isDynamicServerError(error)) {
+      throw error;
+    }
     console.error("Lỗi khi tìm kiếm anime:", error);
     return NextResponse.json(
       { message: "Đã xảy ra lỗi khi tìm kiếm anime" },
