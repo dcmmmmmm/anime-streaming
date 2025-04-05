@@ -129,7 +129,7 @@ const WatchLaterList = () => {
   }
 
   // Hiển thị khi không có item
-  if (watchLaterItems.length === 0) {
+  if (watchLaterItems?.length === 0) {
     return (
       <div className="bg-[#1a1a2e]/50 rounded-lg p-6 sm:p-8">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 relative inline-block after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[3px] after:w-12 after:bg-purple-500 text-white">
@@ -156,7 +156,7 @@ const WatchLaterList = () => {
         Danh sách xem sau
       </h2>
       <div className="space-y-3 sm:space-y-4">
-        {watchLaterItems.map((item) => (
+        {watchLaterItems?.map((item) => (
           <div key={item.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4 border border-gray-700 p-3 sm:p-4 rounded-md bg-[#252538]/30 hover:bg-[#252538]/60 transition-colors">
             <div className="relative w-full sm:w-32 h-32 sm:h-20 flex-shrink-0">
               <Image

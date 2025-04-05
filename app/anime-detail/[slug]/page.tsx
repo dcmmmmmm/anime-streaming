@@ -49,14 +49,19 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
     averageScore: 0,
     totalRatings: 0
   });
+
   // Lấy thông tin anime
   useEffect(() => {
     async function fetchAnime() {
       try {
+        // Kiểm tra xem slug có tồn tại không
+        if (!params.slug) {
+          throw new Error("Slug is undefined");
+        }
+
         // Gọi API lấy thông tin anime theo slug
         const response = await fetch(`/api/animes/anime/${params.slug}`);
         if (!response.ok) {
-          // Xử lý nếu API trả về 404 hoặc 500
           console.error("Anime not found or server error");
           setAnime(null);
         } else {
@@ -80,6 +85,9 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
    useEffect(() => {
     async function fetchRating() {
       try {
+        if (!params.slug) {
+          throw new Error("Slug is undefined");
+        }
         const response = await fetch(`/api/animes/anime/${params.slug}/rating`);
         const data = await response.json();
         setRatingInfo(data);
@@ -199,7 +207,7 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
             {/* Card các nút tương tác */}
             <div className="bg-[#29223a] p-4 rounded shadow-md flex flex-wrap gap-2">
               {/* Xem ngay */}
-              <AnimeViewButton animeId={anime.id.toString()} episodeSlug={episodes[0].slug} />
+              <AnimeViewButton animeId={anime.id.toString()} episodeSlug={episodes[0]?.slug} />
               {/* Thêm vào yêu thích */}
               <FavoriteButton animeId={anime.id.toString()} />
               {/* Chia sẻ */}
@@ -248,7 +256,7 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
 
             {/* Render danh sách season và tập */}
             {seasonNumbers.length > 0 ? (
-              seasonNumbers.map((season) => (
+              seasonNumbers?.map((season) => (
                 <div
                   key={season}
                   className="bg-[#29223a] p-4 rounded shadow-md mb-4"
@@ -276,7 +284,7 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
         </div>
 
         {/* Related Anime Slider (nếu có) */}
-        {Array.isArray(anime.relatedAnimes) && anime.relatedAnimes.length > 0 ? (
+        {Array.isArray(anime.relatedAnimes) && anime.relatedAnimes?.length > 0 ? (
           <div className="mt-8">
             <h3 className="font-semibold text-lg mb-2">Anime Gợi ý</h3>
             <div className="bg-[#29223a] p-4 rounded shadow-md">
@@ -292,7 +300,7 @@ export default function AnimeDetail({ params }: { params: { slug: string } }) {
                   1024: { slidesPerView: 5 },
                 }}
               >
-                {anime.relatedAnimes.map((related) => (
+                {anime.relatedAnimes?.map((related) => (
                   <SwiperSlide key={related.id}>
                     <AnimeCard anime={{
                       id: String(related.id),
