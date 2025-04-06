@@ -149,85 +149,87 @@ export default function Home() {
   }
   
   return (
-    <div className="bg-gradient-to-r from-[#303953] via-[#29223a] to-[#0e0011] text-white min-h-screen p-4">
-      {/* Navbar */}
-      <Navbar/>
-      
-      {/* Hero Section */}
-      <Banner/>
-      
-      {/* Anime Lists Section */}
-      <section className="container mx-auto py-8">
-        <AnimeList
-          title="Đánh Giá Cao Nhất"
-          animes={animeLists.topRated}
-          type="rating"
-        />
-        <AnimeList
-          title="Mới Cập Nhật"
-          animes={animeLists.newReleases}
-          type="new"
-        />
-      </section>
-      
-      {/* Genre Sections */}
-      {/* heading: 1 số thể loại anime */}
-      <div className="container mx-auto text-center py-12">
-        <h2 className="text-2xl font-bold text-[#ff025b]">MỘT SỐ THỂ LOẠI ANIME</h2>
-      </div>
-      <section className="py-8 px-4 text-white">
-        {randomGenres.length === 0 ? (
-          <div className="container mx-auto text-center py-12">
-            <p className="text-xl text-gray-400">Không tìm thấy thể loại với anime</p>
-          </div>
-        ) : (
-          randomGenres.map((genre) => (
-            <div key={genre.id} className="container mx-auto mb-12">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold uppercase relative inline-block">
-                  {genre.name}
-                  <span className="absolute bottom-0 left-0 w-full h-1 bg-[#ff025b] transform origin-left"></span>
-                </h2>
-              </div>
-
-              {genre.animes && genre.animes.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {genre.animes.map((anime) => (
-                    <div key={anime.id}>
-                      <AnimeCard anime={anime} />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 bg-gray-800/50 rounded-lg">
-                  <p className="text-gray-400">Chưa có Anime trong thể loại này</p>
-                </div>
-              )}
-              
-              <div className="mt-6 text-right">
-                <Link 
-                  href={`/genre/${genre.name.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="inline-block text-[#ff025b] hover:underline font-medium"
-                >
-                  Xem tất cả anime {genre.name} →
-                </Link>
-              </div>
-            </div>
-          ))
-        )}
-
-        <div className="text-center mt-12">
-          <Link
-            href="/genres"
-            className="inline-block bg-[#ff025b] px-6 py-3 rounded-lg hover:bg-[#d8064b] transition-colors duration-300 font-semibold shadow-lg hover:shadow-xl"
-          >
-            Xem toàn bộ thể loại
-          </Link>
+    <>
+      <div className="bg-gradient-to-r from-[#303953] via-[#29223a] to-[#0e0011] text-white min-h-screen p-4">
+        {/* Navbar */}
+        <Navbar/>
+        
+        {/* Hero Section */}
+        <Banner/>
+        
+        {/* Anime Lists Section */}
+        <section className="container mx-auto py-8">
+          <AnimeList
+            title="Đánh Giá Cao Nhất"
+            animes={animeLists.topRated}
+            type="rating"
+          />
+          <AnimeList
+            title="Mới Cập Nhật"
+            animes={animeLists.newReleases}
+            type="new"
+          />
+        </section>
+        
+        {/* Genre Sections */}
+        {/* heading: 1 số thể loại anime */}
+        <div className="container mx-auto text-center py-12">
+          <h2 className="text-2xl font-bold text-[#ff025b]">MỘT SỐ THỂ LOẠI ANIME</h2>
         </div>
-      </section>
-      
-      {/* Footer */}
-      <Footer/>
-    </div>
+        <section className="py-8 px-4 text-white">
+          {randomGenres.length === 0 ? (
+            <div className="container mx-auto text-center py-12">
+              <p className="text-xl text-gray-400">Không tìm thấy thể loại với anime</p>
+            </div>
+          ) : (
+            randomGenres.map((genre) => (
+              <div key={genre.id} className="container mx-auto mb-12">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold uppercase relative inline-block">
+                    {genre.name}
+                    <span className="absolute bottom-0 left-0 w-full h-1 bg-[#ff025b] transform origin-left"></span>
+                  </h2>
+                </div>
+
+                {genre.animes && genre.animes.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {genre.animes.map((anime) => (
+                      <div key={anime.id}>
+                        <AnimeCard anime={anime} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-gray-800/50 rounded-lg">
+                    <p className="text-gray-400">Chưa có Anime trong thể loại này</p>
+                  </div>
+                )}
+                
+                <div className="mt-6 text-right">
+                  <Link 
+                    href={`/genre/${genre.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="inline-block text-[#ff025b] hover:underline font-medium"
+                  >
+                    Xem tất cả anime {genre.name} →
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
+
+          <div className="text-center mt-12">
+            <Link
+              href="/genres"
+              className="inline-block bg-[#ff025b] px-6 py-3 rounded-lg hover:bg-[#d8064b] transition-colors duration-300 font-semibold shadow-lg hover:shadow-xl"
+            >
+              Xem toàn bộ thể loại
+            </Link>
+          </div>
+        </section>
+        
+        {/* Footer */}
+        <Footer/>
+      </div>
+    </>
   );
 }

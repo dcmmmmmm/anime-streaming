@@ -49,7 +49,7 @@ export default function Footer() {
             <Link href="/" className="hover:text-[#ff025b] transition">
               Trang chủ
             </Link>
-            <Link href="/genre" className="hover:text-[#ff025b] transition">
+            <Link href="/genres" className="hover:text-[#ff025b] transition">
               Thể loại
             </Link>
           </div>
